@@ -25,23 +25,27 @@ import pandas as pd
 
 
 def load_10k_data():
-    """This function loads in the txt files containing the 10K annual reports from the /data folder.
+    """This function loads in the txt files containing the 10K annual reports from the /data/txt_files folder.
     It loads them in using LangChains TextLoader and adds these all into a list.
 
     Returns:
-        docs (list): A list of LangChain Documents for each of the 10K files in /data folder
+        docs (list): A list of LangChain Documents for each of the 10K txt files
     """
     # Get all file paths to 10K txt reports
-    data_dir_path =  os.getcwd() + '/data/'
-    path_generator = Path(data_dir_path).glob('*.txt')
-    path_list = [str(path) for path in path_generator]
-
-    # Load txt files as LangChain Documents
+    data_dir_path =  os.getcwd() + '/data/txt_files'
+    txt_dirs = os.listdir(data_dir_path)
     docs = []
-    for file_path in path_list:
-        loader = TextLoader(file_path)
-        content = loader.load()
-        docs += content
+
+    for txt_dir in txt_dirs:
+        txt_dir_path = os.path.join(data_dir_path, txt_dir)
+        path_generator = Path(txt_dir_path).glob('*.txt')
+        path_list = [str(path) for path in path_generator]
+
+        # Load txt files as LangChain Documents
+        for file_path in path_list:
+            loader = TextLoader(file_path)
+            content = loader.load()
+            docs += content
 
     return docs
 
@@ -122,7 +126,7 @@ def init_miluvs(vector_library, vector_embeddings):
 
 def create_milvus_db():
     """Function to combine all processes required to setup a Milvus db
-    with vector embeddings relating to 10K reports in the /data folder.
+    with vector embeddings relating to 10K reports in the /data/txt_files folder.
     """
     # Load 10K data as list of LangChain Documents
     docs_10k = load_10k_data()
