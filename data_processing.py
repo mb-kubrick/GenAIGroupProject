@@ -31,7 +31,7 @@ def write_clean_html_text_files(input_folder: str, dest_folder: str):
 
     Args:
         input_folder (string): folder to search for html files (e.g. 'C:\Documents\AAPL_html_files')
-        dest_folder (string): desired destination and name of the folder containing the output .txt files ((e.g. 'C:\Documents\AAPL_cleaned_txt_files'))
+        dest_folder (string): desired name of the folder containing the output .txt files ((e.g. AAPL_cleaned_txt_files'))
     
     Returns: 
         None
