@@ -28,7 +28,6 @@ def download_files_10k(ticker: str, dest_folder: str) -> None:
     cik = SP100data.loc[ticker]["CIK"]
     cik_zero = SP100data.loc[ticker]["CIK Zeros"]
 
-    # Create request header
     headers = {"User-Agent": "fahimaahmed@kubrickgroup.com"}
     
     # Fetch all file submission metadata for the company
@@ -42,7 +41,6 @@ def download_files_10k(ticker: str, dest_folder: str) -> None:
     forms_10k = allForms[mask]
     forms_10k = forms_10k[["accessionNumber", "reportDate", "form", "primaryDocument"]].reset_index(drop=True)
 
-    # Create destination folder if it does not already exist
     if not os.path.exists(dest_folder):
         os.mkdir(dest_folder)
     
