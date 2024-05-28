@@ -1,12 +1,16 @@
 from bs4 import BeautifulSoup
 import re
 
-def clean_html_text(html_text):
-    """Function to clean html files
-    Arguments:
-    ---------------------------------------------------
-    - html_text: type = string, location of html file
+def clean_html_text(html_text: str):
+    """Function to clean html files, this is then used directly in the write_clean_html_text_files function.
+
+    Args:
+        html_text (string): content of the html file
+
+    Returns:
+        cleaner_text (string): returns the cleaned text 
     """
+
     # Create soup object
     soup = BeautifulSoup(html_text, "html.parser")
 
@@ -21,8 +25,18 @@ def clean_html_text(html_text):
 
     return cleaner_text
 
-def write_clean_html_text_files(input_folder, dest_folder):
-    # import packages
+def write_clean_html_text_files(input_folder: str, dest_folder: str):
+    """Function to take html files, clean them using the clean_html_text function and turn them into .txt files.
+    Files can be read easily and saved in destination folder.
+
+    Args:
+        input_folder (string): folder to search for html files (e.g. 'C:\Documents\AAPL_html_files')
+        dest_folder (string): desired destination and name of the folder containing the output .txt files ((e.g. 'C:\Documents\AAPL_cleaned_txt_files'))
+    
+    Returns: 
+        None
+    """
+    # Import packages
     import os
 
     # Create destination folder if it does not already exist
