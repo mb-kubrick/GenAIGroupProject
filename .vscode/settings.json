@@ -1,0 +1,6 @@
+{
+    "editor.rulers": [120],
+    "autoDocstring.docstringFormat": "google",
+    "autoDocstring.generateDocstringOnEnter": true,
+    "autoDocstring.guessTypes": true,
+}

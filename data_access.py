@@ -12,7 +12,6 @@ def download_files_10k(ticker: str, dest_folder: str):
     - dest_folder: type = string, desired destination folder of the file
       (e.g. 'C:\Documents\mormont-edgar')
     """
-
     # Find company data - ticker and CIK number (with and without zeros)
     SP100data = pd.read_csv("companyData.csv", index_col=False)
     SP100data = SP100data.set_index("ticker")
