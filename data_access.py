@@ -15,26 +15,36 @@ def download_files_10k(ticker: str, dest_folder: str) -> None:
     Returns:
         None
     """
+
+    # Reads the CSV containing the list of all the tickers, their CIK (Central Index Key, unique identifier) and CIK Zeros
     SP100data = pd.read_csv("data\companyData.csv", index_col=False)
     SP100data = SP100data.set_index("ticker")
+
+    # Ensure CIK numbers are 10 digits long
     SP100data["CIK Zeros"] = SP100data["CIK Zeros"].astype(str).str.zfill(10)
 
+    # Identifying ticker name, its CIK and CIK Zeros 
     ticker = ticker
     cik = SP100data.loc[ticker]["CIK"]
     cik_zero = SP100data.loc[ticker]["CIK Zeros"]
 
     headers = {"User-Agent": "fahimaahmed@kubrickgroup.com"}
+    
+    # Fetch all file submission metadata for the company
     company_files = requests.get(f"https://data.sec.gov/submissions/CIK{cik_zero}.json", headers=headers)
 
+    # Parse the JSON response to find recent filings
     allForms = pd.DataFrame.from_dict(company_files.json()["filings"]["recent"])
 
+    # Filter for 10-K reports
     mask = allForms["form"] == "10-K"
     forms_10k = allForms[mask]
     forms_10k = forms_10k[["accessionNumber", "reportDate", "form", "primaryDocument"]].reset_index(drop=True)
 
     if not os.path.exists(dest_folder):
         os.mkdir(dest_folder)
-
+    
+    # Loop through all the 10 K files, get the required information to construct the URL, extracted using requests and saved as html files in desired folder
     for i in range(0, len(list(forms_10k["primaryDocument"]))):
         doc_link = forms_10k["primaryDocument"][i]
         accessionNumber = forms_10k["accessionNumber"][i]
