@@ -1,0 +1,7 @@
+digest: ff46456b
+name: dataset
+profile: '{"num_rows": 1, "num_elements": 1}'
+schema: '{"mlflow_colspec": [{"type": "string", "name": "topic", "required": true}]}'
+source: '{"tags": {"mlflow.user": "MichaelBerney", "mlflow.source.name": "c:\\Code\\GenAIGroupProject\\.venv\\Lib\\site-packages\\ipykernel_launcher.py",
+  "mlflow.source.type": "LOCAL"}}'
+source_type: code

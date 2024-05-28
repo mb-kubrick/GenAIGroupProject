@@ -1,0 +1,15 @@
+artifact_uri: file:///c:/Code/GenAIGroupProject/development/mlruns/761134257371717673/6041ded02a1d4698a2567088a19f1b21/artifacts
+end_time: 1716914019600
+entry_point_name: ''
+experiment_id: '761134257371717673'
+lifecycle_stage: active
+run_id: 6041ded02a1d4698a2567088a19f1b21
+run_name: melodic-fish-667
+run_uuid: 6041ded02a1d4698a2567088a19f1b21
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1716914017147
+status: 4
+tags: []
+user_id: MichaelBerney

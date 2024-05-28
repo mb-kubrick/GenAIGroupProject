@@ -1,0 +1,8 @@
+'0':
+  model_data: model.yaml
+  model_load: config_load
+  model_type: PromptTemplate
+'1':
+  model_data: model.yaml
+  model_load: config_load
+  model_type: ChatOpenAI
