@@ -14,11 +14,11 @@ logging.basicConfig(level=logging.INFO)
 # ML-FLOW FUNCTIONS ----------------------------------------------------------------------------------------------------
 
 
-def _close_mlflow_server(server_process: object) -> None:
+def _close_mlflow_server(server_process: subprocess.Popen) -> None:
     """Closes the supplied server process.
 
     Args:
-        server_process (object): The server object in question.
+        server_process (subprocess.Popen): The server object in question.
     """
     server_process.terminate()
     server_process.wait()
