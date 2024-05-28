@@ -5,16 +5,17 @@ import os
 def download_files_10k(ticker: str, dest_folder: str):
     """Function to download all 10-K filings for S&P100
         companies to designated folder.
+    
     Arguments:
     ---------------------------------------------------
     - ticker: type = string, company ticker for S&P100 company
     (e.g. 'AAPL')
-    - dest_folder: type = string, desired destination folder of the file
-      (e.g. 'C:\Documents\mormont-edgar')
+    - dest_folder: type = string, desired destination and name of folder
+      (e.g. 'C:\Documents\AAPL_html_files')
     """
 
     # Find company data - ticker and CIK number (with and without zeros)
-    SP100data = pd.read_csv("companyData.csv", index_col=False)
+    SP100data = pd.read_csv("data\companyData.csv", index_col=False)
     SP100data = SP100data.set_index("ticker")
     SP100data["CIK Zeros"] = SP100data["CIK Zeros"].astype(str).str.zfill(10)
 
