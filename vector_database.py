@@ -14,8 +14,6 @@ from milvus import default_server
 import numpy as np
 from pathlib import Path
 
-from langchain_core.prompts import ChatPromptTemplate
-from langchain_openai import AzureChatOpenAI, AzureOpenAIEmbeddings
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import Milvus # Can use coher/anthropic etc
 from langchain_community.document_loaders import TextLoader
