@@ -1,3 +1,4 @@
 .venv
 genai_venv
 .env
+/mlruns
