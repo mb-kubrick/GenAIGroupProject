@@ -1,5 +1,6 @@
 from dotenv import load_dotenv
 import os
+import docker
 from pymilvus import (
     connections,
     utility,
@@ -24,9 +25,42 @@ import re
 import pandas as pd
 
 
+def start_attu_container():
+    """This function first checks if you have the zilliz docker container with name
+    'attu_container' already running. If it exists it returns this container, otherwise
+    it creates and returns it. NOTE: Make sure you have your Docker daemon running.
+
+    Returns:
+        container (Container): Your zilliz docker container.
+    """
+    client = docker.from_env()
+    
+    # Check if the container is already running
+    container = None
+    try:
+        container = client.containers.get('attu_container')
+        if container.status != 'running':
+            container.start()
+            print("Attu container started.")
+        else:
+            print("Attu container is already running.")
+    except docker.errors.NotFound:
+        # Container is not found, so we create and start it
+        container = client.containers.run(
+            "zilliz/attu:v2.3.9",
+            name="attu_container",
+            ports={'3000/tcp': 8000},
+            environment={"MILVUS_URL": "0.0.0.0:19530"},
+            detach=True
+        )
+        print("Attu container created and started.")
+    return container
+
+
 def load_10k_data():
-    """This function loads in the txt files containing the 10K annual reports from the /data/txt_files folder.
-    It loads them in using LangChains TextLoader and adds these all into a list.
+    """This function loads in the txt files containing the 10K annual reports from
+    the /data/txt_files folder. It loads them in using LangChains TextLoader and adds
+    these all into a list.
 
     Returns:
         docs (list): A list of LangChain Documents for each of the 10K txt files
@@ -51,9 +85,8 @@ def load_10k_data():
 
 
 def create_milvus_connection():
-    """This function attempts to connect to your local Milvus server. NOTE: You will need your
-    zilliz docker container running for this to work. It then creates the schema for your Milvus
-    Collection.
+    """This function assumes you have your docker containers set up and attempts to
+    connect to your local Milvus server.
 
     Returns:
         vector_library (Collection): A Milvus Collection with schema as defined
@@ -150,4 +183,5 @@ def create_milvus_db():
 
 
 if __name__ == '__main__':
+    start_attu_container()
     create_milvus_db()
