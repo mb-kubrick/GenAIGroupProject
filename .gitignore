@@ -1,4 +1,5 @@
 .venv
 genai_venv
 .env
+/mlruns
 genai_training

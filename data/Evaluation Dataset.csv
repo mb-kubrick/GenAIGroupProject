@@ -1,0 +1,2 @@
+﻿inputs,context,targets
+How much money does client 1 have in shares?,"Client 1 has 20 shares. 70% of their shares are in NVDA, and 30% of their shares are in AAPL. Suppose that NVDA shares are worth £1000, and APPL shares are worth £190. ","Client 1 has £14,000 worth of NVDA shares (70% of 20 shares at £1000 per share) and £1,140 worth of AAPL shares (30% of 20 shares at £190 per share). Therefore, in total, Client 1 has £15,1400 in shares."
