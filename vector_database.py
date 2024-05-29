@@ -27,16 +27,23 @@ import pandas as pd
 
 def start_attu_container():
     """This function first checks if you have the zilliz docker container with name
-    'attu_container' already running. If it exists it returns this container, otherwise
-    it creates and returns it. NOTE: Make sure you have your Docker daemon running.
+    'attu_container' inside an image called 'zilliz/attu:v2.3.9' already running.
+    If it exists it returns this container, otherwise it creates and returns it.
+    NOTE: Make sure you have your Docker daemon running.
 
     Returns:
         container (Container): Your zilliz docker container.
     """
     client = docker.from_env()
+
+    # Check if any container with the specified image is already running
+    container = None
+    for cont in client.containers.list(all=True):
+        if 'zilliz/attu:v2.3.9' in cont.image.tags:
+            container = cont
+            break
     
     # Check if the container is already running
-    container = None
     try:
         container = client.containers.get('attu_container')
         if container.status != 'running':
@@ -100,6 +107,9 @@ def create_milvus_connection():
         connections.connect("default", host="localhost", port="19530")
     else:
         raise Exception("Could not connect to Milvus db")
+
+    # Drop collection if it exists
+    utility.drop_collection("AnnualReportDataSearch")
 
     # Create schema for Milvus Collection
     fields = [
