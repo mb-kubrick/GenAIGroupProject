@@ -1,5 +1,6 @@
 from dotenv import load_dotenv
 import os
+import subprocess
 import docker
 from pymilvus import (
     connections,
@@ -23,6 +24,21 @@ from sentence_transformers import SentenceTransformer
 import pickle
 import re
 import pandas as pd
+
+
+def start_docker_compose():
+    try:
+        # Run the docker-compose up command
+        result = subprocess.run(['docker', 'compose', 'up', '-d'], check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        print("Docker Compose started.")
+        print(result.stdout.decode())
+    except subprocess.CalledProcessError as e:
+        # print("Failed to start Docker Compose.")
+        # print(e.stderr.decode())
+        # raise
+        pass
+    else:
+        raise
 
 
 def start_attu_container():
@@ -193,5 +209,6 @@ def create_milvus_db():
 
 
 if __name__ == '__main__':
+    start_docker_compose()
     start_attu_container()
     create_milvus_db()
