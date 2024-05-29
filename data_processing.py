@@ -42,7 +42,8 @@ def clean_html_text(html_text: str):
     return text
 
 def write_clean_html_text_files(input_folder: str, dest_folder: str):
-    """Function to take html files, clean them using the clean_html_text function and turn them into .txt files.
+    """Function to take html files, clean them using the clean_html_text function and turn them into .txt files. The .txt
+    files are then read in and split according to a phrase, this is so we can get rid of the table of contents.
     Files can be read easily and saved in destination folder.
 
     Args:
