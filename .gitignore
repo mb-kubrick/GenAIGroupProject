@@ -3,3 +3,4 @@ genai_venv
 .env
 /mlruns
 genai_training
+/volumes/etcd/member/wal
