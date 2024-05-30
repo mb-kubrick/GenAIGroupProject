@@ -23,7 +23,7 @@ def get_insert_list(num_of_clients):
 def get_shares_list():
     shares_list = []
     for _ in range(len(df)):
-        shares_list.append(random.randint(50,100))
+        shares_list.append(random.randint(50,1000))
     return shares_list
 
 def get_ticker_price(ticker):
@@ -32,13 +32,13 @@ def get_ticker_price(ticker):
     latest_price = data['Close'].iloc[-1]
     return latest_price
 
-def drop_table(db_conn, db_cur):
+def drop_table(db_conn, db_cur, table_name):
     try:
         db_cur.execute(f'''
-            DROP TABLE portfolio
+            DROP TABLE {table_name}
             ''')
         db_conn.commit()
-        print(f' table portfolio dropped')
+        print(f' table {table_name} dropped')
     except Exception as e:
         print(f'drop_table: {e}')
 
@@ -81,7 +81,7 @@ def insert_into_table(db_conn, db_cur, val_list):
 num_of_clients = 15
 insert_list =  get_insert_list(num_of_clients)
 
-drop_table(db_conn, db_cur)
+drop_table(db_conn, db_cur, 'portfolio')
 create_table(db_conn, db_cur)
 insert_into_table(db_conn, db_cur, insert_list)
 
@@ -89,7 +89,7 @@ engine = create_engine('sqlite:///portfolio_allocations.db').connect()
 df = pd.read_sql_table('portfolio', engine)
 
 db_conn.commit()
-db_conn.close()
+#db_conn.close()
 
 shares_list = get_shares_list()
 
@@ -120,6 +120,9 @@ df=df.assign(value_USD = lambda x: (round((x['AAPL']*x['shares held']*AAPL_price
                                 ))
 print(df)
 
-
-
+#db_conn.commit()
+drop_table(db_conn, db_cur, 'portfolio_10')
+df.to_sql('portfolio_10', engine)
+db_conn.commit()
+db_conn.close()
 
