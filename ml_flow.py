@@ -11,6 +11,7 @@ import logging
 import subprocess
 import pandas as pd
 from langchain_openai import ChatOpenAI
+from mlflow.tracking import MlflowClient
 from langchain.prompts import PromptTemplate
 from langchain_core.runnables import RunnableLambda
 from langchain_core.runnables.base import RunnableSequence
@@ -120,3 +121,24 @@ def evaluate_llm(llm_to_evaluate: RunnableSequence, evaluation_dataset: pd.DataF
         mlflow.log_metrics(results.metrics)
 
     return results
+
+def delete_runs(tracking_uri: str = 'http://localhost:8080/', experiment_name: str = 'mlflow_development') -> None:
+    """Deletes the runs of the specified experiment if it exists.
+
+    Args:
+        tracking_uri (_type_, optional): The URI at which the experiment should be sought. Defaults to
+                                         'http://localhost:8080/'.
+        experiment_name (str, optional): The name of the experiment to be deleted. Defaults to 'mlflow_development'.
+
+    Raises:
+        ValueError: Raised if the experiment does not exist.
+    """
+    mlflow.set_tracking_uri(tracking_uri)
+    client = MlflowClient()
+
+    experiment = client.get_experiment_by_name(experiment_name)
+
+    if experiment is None:
+        raise ValueError(f"Experiment '{experiment_name}' not found.")
+
+    client.delete_experiment(experiment.experiment_id)

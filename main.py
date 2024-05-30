@@ -22,12 +22,17 @@ logging.basicConfig(level=logging.INFO)
 # DEFINING FUNCTIONS ---------------------------------------------------------------------------------------------------
 
 def run_get10ks():
+    # download
+    # clean
+    # output
     pass
 
 def run_vector_database():
     start_docker_compose()
     start_attu_container()
     create_milvus_db()
+
+    return collection
 
 def run_generate_synthetic_data():
     # get_connections
@@ -37,7 +42,7 @@ def run_generate_synthetic_data():
     # get_table
     pass
 
-def run_agent_model():
+def run_agent_model(collection):
     pass
 
 def run_mlflow(agent_model):
@@ -51,7 +56,7 @@ def run_mlflow(agent_model):
 
 if __name__ == '__main__':
     run_get10ks()
-    run_vector_database()
+    collection = run_vector_database()
     run_generate_synthetic_data()
-    run_agent_model()
+    run_agent_model(collection)
     run_mlflow()
