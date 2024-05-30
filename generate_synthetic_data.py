@@ -4,19 +4,6 @@ from sqlalchemy import create_engine
 
 db_conn = sqlite3.connect('portfolio_allocations.db') 
 db_cur = db_conn.cursor()
-#db_name = 'portfolio_allocations.db'
-
-'''
-def get_connections(db_name):
-    db_conn = sqlite3.connect(db_name) 
-    db_cur = db_conn.cursor()
-    return db_conn, db_cur
-
-db_conn = get_connections(db_name)[0]
-db_cur = get_connections(db_name)[1]
-print(db_conn)
-print(db_cur)
-'''
 
 def drop_table(db_conn, db_cur):
     try:
@@ -70,14 +57,6 @@ def insert_into_table(db_conn, db_cur):
 drop_table(db_conn, db_cur)
 create_table(db_conn, db_cur)
 insert_into_table(db_conn, db_cur)
-#db_conn.commit()
-
-'''
-db_cur.execute('SELECT * FROM portfolio')
-rows = db_cur.fetchall()
-for row in rows:
-    print(rows)
-'''
 
 engine = create_engine('sqlite:///portfolio_allocations.db').connect()
 df = pd.read_sql_table('portfolio', engine)
