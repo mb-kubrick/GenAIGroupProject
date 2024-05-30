@@ -14,7 +14,7 @@ def download_files_10k(ticker: str, dest_folder: str):
     """
     
     # Load company data - ticker and CIK number (with and without zeros)
-    SP100data = pd.read_csv("companyData.csv", index_col=False)
+    SP100data = pd.read_csv("data\companyData.csv", index_col=False)
     SP100data = SP100data.set_index("ticker")
     SP100data["CIK Zeros"] = SP100data["CIK Zeros"].astype(str).str.zfill(10)
     
