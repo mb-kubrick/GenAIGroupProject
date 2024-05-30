@@ -3,6 +3,7 @@ from typing import List
 import os
 import subprocess
 import docker
+import pickle
 from docker.models.containers import Container
 import torch
 from pymilvus import (
@@ -127,8 +128,9 @@ def create_milvus_connection() -> Collection:
         connections.connect("default", host="127.0.0.1", port=default_server.listen_port)
     except TimeoutError:
         connections.connect("default", host="localhost", port="19530")
-    else:
-        raise Exception("Could not connect to Milvus db")
+    except Exception as e:
+        print("Could not connect to Milvus db")
+        raise e
 
     # Drop collection if it exists
     utility.drop_collection("AnnualReportDataSearch")
@@ -180,7 +182,7 @@ def init_miluvs(vector_library: Collection, vector_embeddings: List[torch.Tensor
         vector_library.create_index("embedding", index_params)
         vector_library.flush()
         vector_library.load()
-        print("Index and embeddings have successfulyy been inserted into your Milvus Collection")
+        print("Index and embeddings have been successfully inserted into your Milvus Collection")
     except Exception as e:
         print("Index and embeddings insertion failed")
         raise e
@@ -190,23 +192,39 @@ def create_milvus_db() -> None:
     """Function to combine all processes required to setup a Milvus db
     with vector embeddings relating to 10K reports in the /data/txt_files folder.
     """
-    # Load 10K data as list of LangChain Documents
-    docs_10k = load_10k_data()
-
-    # Split text
-    text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=0)
-    splits = text_splitter.split_documents(docs_10k)
-
-    # Connect to Milvus db and embed chunks
+    # Initialise
+    model_state_path =  os.getcwd() + '/data/annual_filings_model_state.pkl'
     vector_library = create_milvus_connection()
     model = SentenceTransformer('all-MiniLM-L6-v2')
-    vector_embeddings = []
- 
-    # Create vector embeddings
-    for split in splits:
-        embedding = model.encode(split.page_content)
-        vector_embeddings.append(embedding)
 
+    try:
+        with open(model_state_path, 'rb') as f:
+            vector_embeddings = pickle.load(f)
+        print("Index and embeddings have been successfully loaded from data/annual_filings_model_state.pkl")
+        
+    except FileNotFoundError:
+        # Load 10K data as list of LangChain Documents
+        docs_10k = load_10k_data()
+
+        # Split text
+        text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=0)
+        splits = text_splitter.split_documents(docs_10k)
+
+        # Create vector embeddings
+        vector_embeddings = []
+
+        for split in splits:
+            embedding = model.encode(split.page_content)
+            vector_embeddings.append(embedding)
+
+        # Save embeddings to file
+        with open(model_state_path, 'wb') as f:
+            pickle.dump(vector_embeddings, f)
+        print("Index and embeddings have been successfully saved to data/annual_filings_model_state.pkl")
+    
+    except Exception as e:
+        raise e
+    
     # Upload embeddings to Milvus Collection
     init_miluvs(vector_library, vector_embeddings)
 
