@@ -1,7 +1,10 @@
 from dotenv import load_dotenv
+from typing import List
 import os
 import subprocess
 import docker
+from docker.models.containers import Container
+import torch
 from pymilvus import (
     connections,
     utility,
@@ -17,6 +20,7 @@ from pathlib import Path
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import Milvus # Can use coher/anthropic etc
 from langchain_community.document_loaders import TextLoader
+from langchain.docstore.document import Document
 
 from sentence_transformers import SentenceTransformer
 import pickle
@@ -24,7 +28,10 @@ import re
 import pandas as pd
 
 
-def start_docker_compose():
+def start_docker_compose() -> None:
+    """This function runs the docker-compose.yml file to create the docker containers required
+    for starting up your milvus db server.
+    """
     try:
         # Run the docker-compose up command
         result = subprocess.run(['docker', 'compose', 'up', '-d'], check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -39,7 +46,7 @@ def start_docker_compose():
         raise
 
 
-def start_attu_container():
+def start_attu_container() -> Container:
     """This function first checks if you have the zilliz docker container with name
     'attu_container' inside an image called 'zilliz/attu:v2.3.9' already running.
     If it exists it returns this container, otherwise it creates and returns it.
@@ -78,20 +85,21 @@ def start_attu_container():
     return container
 
 
-def load_10k_data():
+def load_10k_data() -> List[Document]:
     """This function loads in the txt files containing the 10K annual reports from
     the /data/txt_files folder. It loads them in using LangChains TextLoader and adds
     these all into a list.
 
     Returns:
-        docs (list): A list of LangChain Documents for each of the 10K txt files
+        docs (List[Document]): A list of LangChain Documents for each of the 10K txt files
     """
-    # Get all file paths to 10K txt reports
+    # Get path to txt_files directory
     data_dir_path =  os.getcwd() + '/data/txt_files'
     txt_dirs = os.listdir(data_dir_path)
     docs = []
 
     for txt_dir in txt_dirs:
+        # Get all file paths to 10K txt reports
         txt_dir_path = os.path.join(data_dir_path, txt_dir)
         path_generator = Path(txt_dir_path).glob('*.txt')
         path_list = [str(path) for path in path_generator]
@@ -105,7 +113,7 @@ def load_10k_data():
     return docs
 
 
-def create_milvus_connection():
+def create_milvus_connection() -> Collection:
     """This function assumes you have your docker containers set up and attempts to
     connect to your local Milvus server.
 
@@ -146,17 +154,14 @@ def create_milvus_connection():
     return vector_library
 
 
-def init_miluvs(vector_library, vector_embeddings):
+def init_miluvs(vector_library: Collection, vector_embeddings: List[torch.Tensor] | np.ndarray | torch.Tensor) -> None:
     """Function to instantiate your Milvus Collection with primary key and vector embeddings.
     It used an IVF Flat index with an L2 metric. If successful, the Milvus db is ready
     to be queried.
 
     Args:
         vector_library (Collection): Milvus Collection with defined schema
-        vector_embeddings (list): list of embeddings for each chunk of data
-
-    Returns:
-        (str): 'Success' or 'Failed' depending on if your instantiation worked
+        vector_embeddings (List[torch.Tensor] | np.ndarray | torch.Tensor): list of embeddings for each chunk of data
     """
     # Attempt to initialise Milvus Collection with given vector embeddings
     try:
@@ -175,13 +180,13 @@ def init_miluvs(vector_library, vector_embeddings):
         vector_library.create_index("embedding", index_params)
         vector_library.flush()
         vector_library.load()
-        return 'Success'
+        print("Index and embeddings have successfulyy been inserted into your Milvus Collection")
     except Exception as e:
-        print(e)
-        return 'Failed'
+        print("Index and embeddings insertion failed")
+        raise e
 
 
-def create_milvus_db():
+def create_milvus_db() -> None:
     """Function to combine all processes required to setup a Milvus db
     with vector embeddings relating to 10K reports in the /data/txt_files folder.
     """
@@ -204,6 +209,8 @@ def create_milvus_db():
 
     # Upload embeddings to Milvus Collection
     init_miluvs(vector_library, vector_embeddings)
+
+    return vector_library
 
 
 if __name__ == '__main__':
