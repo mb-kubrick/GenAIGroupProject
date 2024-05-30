@@ -145,6 +145,13 @@ def create_milvus_connection() -> Collection:
         auto_id=False,),
 
         FieldSchema(
+        name="chunk",
+        description="raw text from 10ks",
+        dtype=DataType.STRING,
+        dim=1000,
+        ),
+
+        FieldSchema(
         name="embedding",
         description="10K embedding",
         dtype=DataType.FLOAT_VECTOR,
