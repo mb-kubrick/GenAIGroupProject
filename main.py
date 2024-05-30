@@ -15,8 +15,9 @@ import logging
 
 import pandas as pd
 from data_access import download_files_10k
+from langchain.agents import AgentExecutor
 from data_processing import write_clean_html_text_files
-from ml_flow import mlflow_server, evaluate_llm
+from ml_flow import mlflow_server, evaluate_agent, get_info_on_runs, delete_all_runs
 from vector_database import start_docker_compose, start_attu_container, create_milvus_db
 
 logging.basicConfig(level=logging.INFO)
@@ -45,12 +46,22 @@ def run_generate_synthetic_data():
 def run_agent_model(collection):
     pass
 
-def run_mlflow(agent_model):
+def run_mlflow(agent: AgentExecutor, experiment_name: str = 'mlflow_development', delete: bool = False) -> None:
+    """Runs the MLFlow portion of the pipeline.
 
-    mlflow_server()
+    Args:
+        agent (AgentExecutor): The agent with which to perform the evaluation.
+        experiment_name (str, optional): The name of the MLFlow experiment. Defaults to 'mlflow_development'.
+        delete (bool, optional): Whether to delete runs after completion. Defaults to False.
+    """
+    _ = mlflow_server()
 
-    eval_set = pd.read_csv(os.getcwd() +'/data/' + 'Evaluation Dataset.csv')
-    evaluate_llm(agent_model, eval_set, "openai:/gpt-3.5-turbo", "mlflow_development")
+    eval_set = pd.read_csv(os.getcwd() +'/data/' + 'Evaluation Dataset - Agent.csv')
+    evaluate_agent(agent, eval_set['questions'], experiment_name)
+    get_info_on_runs(experiment_name)
+
+    if delete:
+        delete_all_runs(experiment_name)
 
 # RUNNING --------------------------------------------------------------------------------------------------------------
 
@@ -58,5 +69,7 @@ if __name__ == '__main__':
     run_10ks('AAPL', '.\AAPL_html_files', 'AAPL_cleaned_txt_files')
     collection = run_vector_database()
     run_generate_synthetic_data()
-    run_agent_model(collection)
-    run_mlflow()
+    agent = run_agent_model(collection)
+    run_mlflow(agent)
+
+    
