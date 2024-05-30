@@ -4,7 +4,7 @@ import sqlite3
 import yfinance as yf
 from sqlalchemy import create_engine
 
-db_conn = sqlite3.connect('portfolio_allocations.db') 
+db_conn = sqlite3.connect('portfolio_allocations10.db') 
 db_cur = db_conn.cursor()
 
 def gen_norm_vals():
@@ -46,7 +46,7 @@ def drop_table(db_conn, db_cur, table_name):
 def create_table(db_conn, db_cur):
     try:
         db_cur.execute(f'''
-            CREATE TABLE IF NOT EXISTS portfolio (
+            CREATE TABLE IF NOT EXISTS portfolio10 (
             ClientId INTEGER PRIMARY KEY AUTOINCREMENT,
             AAPL DECIMAL(2,2) NOT NULL,
             MSFT DECIMAL(2,2),
@@ -61,32 +61,32 @@ def create_table(db_conn, db_cur):
             )
             ''')
         db_conn.commit()
-        print(f'table portfolio created')
+        print(f'table portfolio10 created')
     except Exception as e:
         print(e)
 
 def insert_into_table(db_conn, db_cur, val_list):
     try:
         db_cur.executemany(f'''
-            INSERT INTO portfolio (
+            INSERT INTO portfolio10 (
             AAPL, MSFT, NVDA, F, GOOGL, TSLA, NKE, META, AMZN, ORCL)
             VALUES 
             (?,?,?,?,?,?,?,?,?,?)''', val_list)
 
         db_conn.commit()
-        print(f'insert into portfolio successful')
+        print(f'insert into portfolio10 successful')
     except Exception as e:
         print(e)  
 
 num_of_clients = 15
 insert_list =  get_insert_list(num_of_clients)
 
-drop_table(db_conn, db_cur, 'portfolio')
+drop_table(db_conn, db_cur, 'portfolio10')
 create_table(db_conn, db_cur)
 insert_into_table(db_conn, db_cur, insert_list)
 
-engine = create_engine('sqlite:///portfolio_allocations.db').connect()
-df = pd.read_sql_table('portfolio', engine)
+engine = create_engine('sqlite:///portfolio_allocations10.db').connect()
+df = pd.read_sql_table('portfolio10', engine)
 
 db_conn.commit()
 #db_conn.close()
@@ -121,8 +121,8 @@ df=df.assign(value_USD = lambda x: (round((x['AAPL']*x['shares held']*AAPL_price
 print(df)
 
 #db_conn.commit()
-drop_table(db_conn, db_cur, 'portfolio_10')
-df.to_sql('portfolio_10', engine)
+drop_table(db_conn, db_cur, 'portfolio10')
+df.to_sql('portfolio10', engine)
 db_conn.commit()
 db_conn.close()
 
