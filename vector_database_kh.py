@@ -95,7 +95,7 @@ def load_10k_data() -> List[Document]:
         docs (List[Document]): A list of LangChain Documents for each of the 10K txt files
     """
     # Get path to txt_files directory
-    data_dir_path =  os.getcwd() + '/GenAIGroupProject/data/txt_files'
+    data_dir_path =  os.getcwd() + '/data/txt_files'
     txt_dirs = os.listdir(data_dir_path)
     docs = []
 
@@ -123,10 +123,10 @@ def create_milvus_connection() -> Collection:
     """
     # Attempt to connect to milvus db
     # Make sure you have docker and zilliz container running
-    try:
-        default_server.start()
-        connections.connect("default", host="127.0.0.1", port=default_server.listen_port)
-    except TimeoutError:
+    # try:
+    #     default_server.start()
+    #     connections.connect("default", host="127.0.0.1", port=default_server.listen_port)
+    try: 
         connections.connect("default", host="localhost", port="19530")
     except Exception as e:
         print("Could not connect to Milvus db")
@@ -193,7 +193,7 @@ def create_milvus_db() -> None:
     with vector embeddings relating to 10K reports in the /data/txt_files folder.
     """
     # Initialise
-    model_state_path =  os.getcwd() + '/GenAIGroupProject/data/annual_filings_model_state.pkl'
+    model_state_path =  os.getcwd() + '/data/annual_filings_model_state.pkl'
     vector_library = create_milvus_connection()
     model = SentenceTransformer('all-MiniLM-L6-v2')
 
@@ -232,6 +232,6 @@ def create_milvus_db() -> None:
 
 
 if __name__ == '__main__':
-    start_docker_compose()
+    # start_docker_compose()
     start_attu_container()
     create_milvus_db()
