@@ -9,7 +9,7 @@ def download_files_10k(ticker: str, dest_folder: str)->None:
 
     Args:
         ticker (str): company ticker for S&P100 company (e.g. 'AAPL')
-        dest_folder (str): desired destination folder of the file (e.g. ".\AAPL_html_files")
+        dest_folder (str): desired destination folder of the file (e.g. "./AAPL_html_files")
     
     Returns:
         None
