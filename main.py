@@ -14,8 +14,14 @@ import os
 import logging
 
 import pandas as pd
+import random
+import sqlite3
+import yfinance as yf
+
 from data_access import download_files_10k
+from generate_synthetic_data import create_synthetic_data, get_share_value
 from ml_flow import mlflow_server, evaluate_llm
+from sqlalchemy import create_engine
 from vector_database import start_docker_compose, start_attu_container, create_milvus_db
 
 logging.basicConfig(level=logging.INFO)
@@ -33,11 +39,11 @@ def run_vector_database():
     return collection
 
 def run_generate_synthetic_data():
-    # get_connections
-    # drop_table
-    # create_table
-    # insert_into_table
-    # get_table
+    db_conn = sqlite3.connect('portfolio_allocationsTest.db') 
+    db_cur = db_conn.cursor()
+    engine = create_engine('sqlite:///portfolio_allocationsTest.db').connect()
+    create_synthetic_data(db_conn, db_cur)
+    get_share_value(db_conn, db_cur, engine)
     pass
 
 def run_agent_model(collection):

@@ -7,3 +7,6 @@ langchain_community
 langchain_core
 sentence_transformers
 python-dotenv
+sqlite3
+yfinance
+sqlalchemy
