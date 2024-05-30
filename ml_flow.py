@@ -61,28 +61,30 @@ def mlflow_server(port: int = 8080) -> subprocess.Popen:
     return server_process
 
 
-def create_example_llm() -> RunnableSequence:
-    """Creates a simple chat LLM which models an investment manager. The LLM only returns strings.
+# def create_example_llm() -> RunnableSequence:
+#     """Creates a simple chat LLM which models an investment manager. The LLM only returns strings.
 
-    Returns:
-        RunnableSequence: A LangChain sequence representing the LLM.
-    """
-    example_llm = ChatOpenAI(model_name='gpt-3.5-turbo-0125', temperature=0)
+#     Returns:
+#         RunnableSequence: A LangChain sequence representing the LLM.
+#     """
+#     example_llm = ChatOpenAI(model_name='gpt-3.5-turbo-0125', temperature=0)
 
-    example_prompt = PromptTemplate(input_variables=['inputs', 'context'],
-                                    template=("You're a investment manager. Using the context provided, "
-                                              + "reply to the question below to the best of your ability:\n"
-                                              + "Question:\n{inputs}\nContext:\n{context}"))
+#     example_prompt = PromptTemplate(input_variables=['inputs', 'context'],
+#                                     template=("You're a investment manager. Using the context provided, "
+#                                               + "reply to the question below to the best of your ability:\n"
+#                                               + "Question:\n{inputs}\nContext:\n{context}"))
 
-    def _get_content(model_return):
-        return model_return.content
+#     def _get_content(model_return):
+#         return model_return.content
 
-    get_content_lambda = RunnableLambda(_get_content)
+#     get_content_lambda = RunnableLambda(_get_content)
 
-    example_model = example_prompt | example_llm | get_content_lambda
+#     example_model = example_prompt | example_llm | get_content_lambda
 
-    return example_model
+#     return example_model
 
+def create_example_agent():
+    from langchain.agents import create_react_agent, AgentExecutor
 
 def evaluate_llm(llm_to_evaluate: RunnableSequence, evaluation_dataset: pd.DataFrame,
                  judge_model: str = "openai:/gpt-3.5-turbo", experiment_name: str = "mlflow_development"

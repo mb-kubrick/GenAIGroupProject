@@ -14,6 +14,7 @@ import os
 import logging
 
 import pandas as pd
+from data_access import download_files_10k
 from ml_flow import mlflow_server, evaluate_llm
 from vector_database import start_docker_compose, start_attu_container, create_milvus_db
 
@@ -21,11 +22,8 @@ logging.basicConfig(level=logging.INFO)
 
 # DEFINING FUNCTIONS ---------------------------------------------------------------------------------------------------
 
-def run_get10ks():
-    # download
-    # clean
-    # output
-    pass
+def run_10ks(ticker, dest_folder):
+    download_files_10k(ticker, dest_folder)
 
 def run_vector_database():
     start_docker_compose()
@@ -55,7 +53,7 @@ def run_mlflow(agent_model):
 # RUNNING --------------------------------------------------------------------------------------------------------------
 
 if __name__ == '__main__':
-    run_get10ks()
+    run_10ks('AAPL', '.\AAPL_html_files_recent')
     collection = run_vector_database()
     run_generate_synthetic_data()
     run_agent_model(collection)
