@@ -3,30 +3,15 @@ from langchain.chat_models import ChatOpenAI
 from langchain.tools import Tool, tool
 from langchain_community.tools import DuckDuckGoSearchRun
 from langchain.prompts.prompt import PromptTemplate
-from langchain.document_loaders import TextLoader
-from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain.embeddings import OpenAIEmbeddings
-from langchain_community.vectorstores import FAISS
 from langchain.agents import create_react_agent, AgentExecutor
 from langchain_community.utilities.sql_database import SQLDatabase
 from langchain_community.agent_toolkits import create_sql_agent
 from dotenv import load_dotenv
-from langchain.output_parsers import ResponseSchema, StructuredOutputParser, ListOutputParser
+from langchain.output_parsers import ResponseSchema, StructuredOutputParser
 from langchain_core.pydantic_v1 import BaseModel, Field
 from langchain_core.output_parsers import JsonOutputParser
 from langchain_core.prompts.few_shot import FewShotPromptTemplate
-import re
 import os
-
-from pymilvus import (
-    connections,
-    FieldSchema,
-    CollectionSchema,
-    DataType,
-    Collection,
-    utility,
-)
-from vector_database_rawtxt import create_milvus_db
 from sentence_transformers import SentenceTransformer
 
 
@@ -34,7 +19,9 @@ from sentence_transformers import SentenceTransformer
 load_dotenv()
 
 def get_numbers(query: str):
-    llm = ChatOpenAI(api_key=os.getenv('OPENAI_API_KEY'), model='gpt-3.5-turbo', temperature=0.2)
+    """Use an LLM to parse what clients the SQL query is to be run for."""
+
+    llm = ChatOpenAI(api_key=os.getenv('OPENAI_API_KEY'), model='gpt-3.5-turbo', temperature=0)
     template = """
     You are smart agent that can idenify all the client ids to solve the query. 
     If no start point for a client is mentioned, assume client 1 is the first client.
@@ -92,7 +79,7 @@ def query_embeddings(query : str):
         [embedded_query_qn.tolist()], # a single query must still be enclosed in a list
         "embedding",
         search_params,
-        limit=1
+        limit=5
     )
 
     chunk_list = []
@@ -104,7 +91,7 @@ def query_embeddings(query : str):
     for id in chunk_list:
         search_result = vector_store.query(expr=f"pk == {id}", output_fields=["*"])
         res.append(search_result[0]["plain_text"])
-    return res[0]
+    return res
 
 
 @tool
@@ -118,7 +105,6 @@ def query_database(query : str):
     db = SQLDatabase.from_uri('sqlite:///portfolio_allocations.db')
     agent_executor = create_sql_agent(llm, db=db, agent_type="openai-tools", verbose=True)
     result = agent_executor.invoke(query)
-    
 
     client = get_numbers(query)
     for i in client:
@@ -142,9 +128,6 @@ def query_database(query : str):
 
     return ans
 
-
-    
-    
 
 
 @tool
@@ -197,7 +180,7 @@ def portfolio_allocation(query : str):
     c1 = query_embeddings("what is the current financial outlook of AAPL, MSFT, NVIDIA")
     c2 = search_tool("what is the current financial outlook of AAPL, MSFT, NVIDIA")
 
-    context = c1 + c2
+    context = c1.append(c2)
 
     example_prompt = PromptTemplate(
     input_variables=["question", "answer"], template=template
@@ -214,107 +197,107 @@ def portfolio_allocation(query : str):
 
     chain = prompt | llm
 
-    #print(f"context: {context}")
     ans = chain.invoke({'input' : query, 'context':context})
     
     query_database(f"set the stock allocations for the client and percentages from {ans.content} provide the sql query to do so and execute it on the database")
     
-    return ans.content
+    return ans
 
     
-tools = [Tool(name="search_tool", func=search_tool, description="Tool for performing online search operations"),
+tools = [
          Tool(name="query_embeddings", func=query_embeddings, description="Tool for performing vector similarity search on comapny financial data from their 10-K reports."),
+         Tool(name="search_tool", func=search_tool, description="Tool for performing online search operations"),
          Tool(name='query_database', func=query_database, description= "This function queries the SQL database based on the query that the user provides to provide insight into the current client stock portfolio"),
          Tool(name='portfolio_allocation', func=portfolio_allocation, description='This function uses context from the vector database and online searches as well as the investment stratergy the user specifies to determine the stock allocation splits')]
 
 
+def call_agent(query : str):
+    #queries and agent
+    template = """
 
-#create template and call agent
-template = """
-You need to use the tools to find the appropriate action to take. 
+    Only use the portfolio_allocation tool if the terms 'strategy' AND 'client' are provided in the query.
+    Otherwise any queries involving 'client' you should only use the query_database tool. 
 
-If you are searching for information, use the query_emebddings tool or the search_tool.
+    If the user query requests information which doesn't require the need for a SQL database, use the query_emebddings tool.
+    Only use the search_tool tool if there query involves things the query_embeddings tools does not provide an output. 
 
-If you are searching for any information use the query_emebddings tool FIRST as it provides the most grounded data.
-If there is a response from the query_embeddings tool, use the output of this tool to give a short and concise
-answer to the user's query and DO NOT USE ANY OTHER TOOLS!
+    You have access to the following tools:
+    {tools}
 
-If you do not get relevent results from the query_embeddings tool, then
-use the search_tool to get responses from the internet.
+    Question: the input question you must answer
 
-If you still can't find an answer from the search_tool, 
-please do not make up an answer and return 'Sorry I cannot answer your query' instead.
+    Thought: you should always think about what to do
 
-Only use the query_database and portfolio_allocation tools when the term "clients" is mentioned in the query .
-if only the query_database is used, the output has to be EXACTLY as it is in the function.
-and if further queries are presented alongside the term "clients", then use all tools available.
+    Action: the action to take, should be one of [{tool_names}]
 
-If performing portfolio_allocation, use the tools "search_tool" and "query_embeddings" 
-to get context around AAPL, MSFT, NVIDIA's financial situation. 
-Use a query with these tools that states: "Tell me about the company's financial situation".
+    Action Input: the input to the action
 
-You have access to the following tools:
-{tools}
+    Observation: the result of the action
 
-Question: the input question you must answer
+    ... (this Thought/Action/Action Input/Observation can repeat N times)
 
-Thought: you should always think about what to do
+    Thought: I now know the final answer
 
-Action: the action to take, should be one of [{tool_names}]
+    If your thought before the final answer includes the output from the portfolio_allocation tool, give the response by including ACTUAL percentages totalling to 100. 
 
-Action Input: the input to the action
+    Final Answer: the final answer to the ORIGINAL input question
 
-Observation: the result of the action
-
-... (this Thought/Action/Action Input/Observation can repeat N times)
-
-Thought: I now know the final answer
-
-If your thought before the final answer includes the output from the portfolio_allocation tool, give the response by including ACTUAL percentages totalling to 100. 
-
-If your thought before the final answer uses the query_database tool, treat the tool as a function and return a dictionary output as the final answer.
-
-Final Answer: the final answer to the original input question
-
-Begin!
+    Begin!
 
 
-Question: {input}
+    Question: {input}
 
-Thought:{agent_scratchpad}
-"""
-
-
-# Define the query and create the prompt
-#query = 'return the values for client_id 1 in the sql database and also tell me the current apple stock price'
-#query = 'Tell me the todays Apple stock price'
-#query = 'Return me the stock allocation for client 5'
-# query = 'Return me the stock allocation for client 8'
-#query = 'Return me the stock allocation for every client'
-#query = 'give me all the stock allocations from all clients up to client 3'
-#query = "The Company continues to develop new technologies to enhance existing products and services and to expand the range of its offerings through research and development RD licensing of intellectual property and acquisition of thirdparty businesses and technology"
-#query = "Give me a sentence from the apple 10-k report"
-#query = "Give me the exact sales figures for iphones in 2021"
-query = "How much Profit did company Apple make in comparison to NVIDIA?"
-#query =  "add a new client to the database with random stock allocations, provide the sql query to do so and execute it"
-#query =  "set the stock allocations for client_id 1 to 5,5,90. provide the sql query to do so and execute it on the database" #remeber to pull numbers from another query into this framework
-#query = 'give me all the stock allocations from all clients up to client 3'
-# query = 'give me all the stock allocations for all clients up to client 3'
-#query = 'Reallocate the stocks for client 3 using a balanced stratergy'
-
-prompt = PromptTemplate(input_variables=['input','tools', 'agent_scratchpad', 'tool_names'], template=template)
-
-# Initialize the language model
-llm = ChatOpenAI(api_key=os.getenv('OPENAI_API_KEY'), model='gpt-3.5-turbo', temperature=0.2)
+    Thought:{agent_scratchpad}
+    """
 
 
-# Create the agent using the language model and the toolset
-agent = create_react_agent(llm=llm, tools=tools, prompt=prompt)
+    # Define the query and create the prompt
+    #query = 'return the values for client_id 1 in the sql database and also tell me the current apple stock price'
 
-# Create the agent executor
-agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True, handle_parsing_errors=True)
+    #sql queries
+    #query = 'Return me the stock allocation for client 5'
+    #query = 'Return me the stock allocation for client 8'
+    #query = 'Return me the stock allocation for every client'
+    #query = 'give me all the stock allocations from all clients up to client 3'
+    #query = 'give me all the stock allocations from all clients up to client 3'
+    #query = 'give me all the stock allocations for client 8'
+    #query = "The Company continues to develop new technologies to enhance existing products and services and to expand the range of its offerings through research and development RD licensing of intellectual property and acquisition of thirdparty businesses and technology"
 
-# Execute the agent with the given input
-response = agent_executor.invoke({'input': query, 'tools' : tools, 'tool_names' : [tool.name for tool in tools]})
+    #portfolio allocation queries 
+    #query = "How much Profit did company Apple make in comparison to Microsoft in 2021?"
+    #query =  "add a new client to the database with random stock allocations, provide the sql query to do so and execute it"
+    #query =  "set the stock allocations for client_id 1 to 5,5,90. provide the sql query to do so and execute it on the database" #remeber to pull numbers from another query into this framework
+    #query = 'Reallocate the stocks for client 1 using a risk-based stratergy'
 
-print(response['output'])
+    #search queries
+    #query = 'Tell me the todays MSFT stock price'
+
+    #embedding queries
+    #query = "What are the strategic objectives of Apple over in 2023?"
+    #query = "Give me a sentence from the apple 10-k report"
+    #query = "Give me the net sale value for iphones in 2022"
+    #query = "Give me the net sales for Nvidia in Q4 2021"
+    #query = "What is the general sentiment about apple based on the 2022 report?"
+
+
+    prompt = PromptTemplate(input_variables=['input','tools', 'agent_scratchpad', 'tool_names'], template=template)
+
+    # Initialize the language model
+    llm = ChatOpenAI(api_key=os.getenv('OPENAI_API_KEY'), model='gpt-3.5-turbo', temperature=0.2)
+
+
+    # Create the agent using the language model and the toolset
+    agent = create_react_agent(llm=llm, tools=tools, prompt=prompt)
+
+    # Create the agent executor
+    agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True, handle_parsing_errors=True)
+
+    # Execute the agent with the given input
+    response = agent_executor.invoke({'input': query, 'tools' : tools, 'tool_names' : [tool.name for tool in tools]})
+
+    return response['output'], agent_executor
+
+resp, agent_executor = call_agent("Give me the net sales for Nvidia in Q4 2021")
+
+print(resp)
+# print(agent_executor)
