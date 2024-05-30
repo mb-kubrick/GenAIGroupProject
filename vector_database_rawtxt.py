@@ -245,5 +245,5 @@ def create_milvus_db() -> None:
 
 if __name__ == '__main__':
     #start_docker_compose()
-    start_attu_container()
+    #start_attu_container()
     create_milvus_db()
