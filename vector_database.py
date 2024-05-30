@@ -138,17 +138,23 @@ def create_milvus_connection() -> Collection:
     # Create schema for Milvus Collection
     fields = [
         FieldSchema(
-        name="pk",
-        description="Primary Key",
-        dtype=DataType.INT64,
-        is_primary=True,
-        auto_id=False,),
-
+            name="pk",
+            description="Primary Key",
+            dtype=DataType.INT64,
+            is_primary=True,
+            auto_id=False,
+        ),
         FieldSchema(
-        name="embedding",
-        description="10K embedding",
-        dtype=DataType.FLOAT_VECTOR,
-        dim=384,
+            name="plain_text",
+            description="plain text chunks",
+            dtype=DataType.VARCHAR,
+            max_length=1024,
+        ),
+        FieldSchema(
+            name="embedding",
+            description="10K embedding",
+            dtype=DataType.FLOAT_VECTOR,
+            dim=384,
         ),
     ]
     schema = CollectionSchema(fields, description="10K embeddings")
@@ -156,13 +162,14 @@ def create_milvus_connection() -> Collection:
     return vector_library
 
 
-def init_miluvs(vector_library: Collection, vector_embeddings: List[torch.Tensor] | np.ndarray | torch.Tensor) -> None:
+def init_miluvs(vector_library: Collection, plain_text_chunks: List[str], vector_embeddings: List[torch.Tensor] | np.ndarray | torch.Tensor) -> None:
     """Function to instantiate your Milvus Collection with primary key and vector embeddings.
     It used an IVF Flat index with an L2 metric. If successful, the Milvus db is ready
     to be queried.
 
     Args:
         vector_library (Collection): Milvus Collection with defined schema
+        plain_text_chunks (List[str]): list of plain text for each chunk of data
         vector_embeddings (List[torch.Tensor] | np.ndarray | torch.Tensor): list of embeddings for each chunk of data
     """
     # Attempt to initialise Milvus Collection with given vector embeddings
@@ -170,7 +177,8 @@ def init_miluvs(vector_library: Collection, vector_embeddings: List[torch.Tensor
         vector_library.release()
         vector_library.drop_index()
         database_insert = [
-            [i for i in range(len(vector_embeddings))],  
+            [i for i in range(len(vector_embeddings))],
+            plain_text_chunks,
             vector_embeddings,  
         ]
         vector_library.insert(database_insert)
@@ -182,7 +190,7 @@ def init_miluvs(vector_library: Collection, vector_embeddings: List[torch.Tensor
         vector_library.create_index("embedding", index_params)
         vector_library.flush()
         vector_library.load()
-        print("Index and embeddings have been successfully inserted into your Milvus Collection")
+        print("Index, plain text and embeddings have been successfully inserted into your Milvus Collection")
     except Exception as e:
         print("Index and embeddings insertion failed")
         raise e
@@ -199,8 +207,10 @@ def create_milvus_db() -> None:
 
     try:
         with open(model_state_path, 'rb') as f:
-            vector_embeddings = pickle.load(f)
-        print("Index and embeddings have been successfully loaded from data/annual_filings_model_state.pkl")
+            loaded_data = pickle.load(f)
+            plain_text_chunks = loaded_data["plain_text"]
+            vector_embeddings = loaded_data["embeddings"]
+        print("Plain text and embeddings have been successfully loaded from data/annual_filings_model_state.pkl")
         
     except FileNotFoundError:
         # Load 10K data as list of LangChain Documents
@@ -211,22 +221,23 @@ def create_milvus_db() -> None:
         splits = text_splitter.split_documents(docs_10k)
 
         # Create vector embeddings
+        plain_text_chunks = [split.page_content for split in splits]
         vector_embeddings = []
 
-        for split in splits:
-            embedding = model.encode(split.page_content)
+        for text in plain_text_chunks:
+            embedding = model.encode(text)
             vector_embeddings.append(embedding)
 
         # Save embeddings to file
-        with open(model_state_path, 'wb') as f:
-            pickle.dump(vector_embeddings, f)
-        print("Index and embeddings have been successfully saved to data/annual_filings_model_state.pkl")
+        with open(model_state_path, "wb") as f:
+            pickle.dump({"plain_text": plain_text_chunks, "embeddings": vector_embeddings}, f)
+        print("Plain text and embeddings have been successfully saved to data/annual_filings_model_state.pkl")
     
     except Exception as e:
         raise e
     
     # Upload embeddings to Milvus Collection
-    init_miluvs(vector_library, vector_embeddings)
+    init_miluvs(vector_library, plain_text_chunks, vector_embeddings)
 
     return vector_library
 
