@@ -237,31 +237,10 @@ def call_agent(query: str):
 
     Thought:{agent_scratchpad}
     """
-
-    #Question set:
-    #Embeddings
-    #query = "What are the strategic objectives of Apple over the next year?"
-    #query = "Give me the net sale value for iphones in Apple in 2022 in America"
-    #query =  "How much profit did Apple make in comparison to Microsoft in 2021?"
-
-    #Searches
-    #query = "Tell me today's Nvidia stock value"
-    #query = 'What is the weather in london right now?'
-
-    #SQL search:
-    #query = 'give me all the stock allocations for client 1 and client 2'
-    #query = 'give me the stock allocations for client 7'
-
-    #portfolio allocation queries 
-    #query = 'Reallocate the stocks for client 6 using a balanced strategy'
-    #query = 'Reallocate the stocks for client 1 using a risk-based strategy'
-    #query = 'Reallocate the stocks for client 2 using a returns-based strategy'
-
-
     prompt = PromptTemplate(input_variables=['input','tools', 'agent_scratchpad', 'tool_names'], template=template)
 
     # Initialize the language model
-    llm = ChatOpenAI(api_key=os.getenv('OPENAI_API_KEY'), model='gpt-3.5-turbo', temperature=0.2)
+    llm = ChatOpenAI(api_key=os.getenv('OPENAI_API_KEY'), model='gpt-3.5-turbo', temperature=0)
 
 
     # Create the agent using the language model and the toolset
@@ -275,6 +254,23 @@ def call_agent(query: str):
 
     return response, agent_executor
 
+#Question set:
+#Embeddings
+#query = "What are the strategic objectives of Apple over the next year?"
+#query = "Give me the net sale value for iphones in Apple in 2022 in America"
+#query =  "How much profit did Apple make in comparison to Microsoft in 2021?"
 
-resp, agent = call_agent('give me all the stock allocations for client 1 and client 2')
+#Searches
+#query = "Tell me today's Nvidia stock value"
+#query = 'What is the weather in london right now?'
+
+#SQL search:
+#query = 'give me all the stock allocations for client 1 and client 2'
+#query = 'give me the stock allocations for client 5'
+
+#portfolio allocation queries 
+#query = 'Reallocate the stocks for client 6 using a balanced strategy'
+#query = 'Reallocate the stocks for client 5 using a risk-based strategy'
+query = 'Reallocate the stocks for client 2 using a returns-based strategy'
+resp, agent = call_agent(query=query)
 print(resp['output'])
