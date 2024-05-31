@@ -252,7 +252,7 @@ def call_agent(query: str):
     # Execute the agent with the given input
     response = agent_executor.invoke({'input': query, 'tools' : tools, 'tool_names' : [tool.name for tool in tools]})
 
-    return response['output'], agent_executor
+    return response, agent_executor
 
 # #Question set:
 # #Embeddings
@@ -271,6 +271,6 @@ def call_agent(query: str):
 # #portfolio allocation queries 
 # #query = 'Reallocate the stocks for client 6 using a balanced strategy'
 # #query = 'Reallocate the stocks for client 5 using a risk-based strategy'
-#query = 'Reallocate the stocks for client 2 using a returns-based strategy'
-# resp, agent = call_agent(query=query)
-# print(resp['output'])
+query = 'Reallocate the stocks for client 2 using a returns-based strategy'
+resp, agent = call_agent(query=query)
+print(resp['output'])
