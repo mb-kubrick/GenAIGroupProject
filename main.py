@@ -59,7 +59,9 @@ def run_mlflow(agent: AgentExecutor, experiment_name: str = 'mlflow_development'
 
     eval_set = pd.read_csv(os.getcwd() +'/data/' + 'Evaluation Dataset - Agent.csv')
     evaluate_agent(agent, eval_set['question'], experiment_name)
-    get_info_on_runs(experiment_name)
+    text, metrics = get_info_on_runs(experiment_name)
+
+    print(text)
 
     if delete:
         delete_all_runs(experiment_name)
