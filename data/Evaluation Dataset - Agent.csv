@@ -1,0 +1,13 @@
+﻿question
+Return the values for client_id 1 in the sql database and also tell me the current apple stock price.
+Tell me the latest AAPL stock price.
+Return me the stock allocation for client 5.
+Return me the stock allocation for client 8.
+Return me the stock allocation for every client.
+Give me all the stock allocations from all clients up to client 3.
+Give me a sentence from the apple 10-k report.
+What is the net sales of iPhones in 2021.
+"Add a new client to the database with random stock allocations, and provide the sql query used."
+Give me all the stock allocations from all clients up to client 3.
+Give me all the stock allocations for all clients up to client 3.
+Reallocate the stocks for client 3 using a balanced strategy.
