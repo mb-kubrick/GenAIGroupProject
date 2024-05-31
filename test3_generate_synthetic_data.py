@@ -105,3 +105,10 @@ df.to_sql('portfolio3', engine)
 db_conn.commit()
 db_conn.close()
 
+def run_generate_synthetic_data():
+    db_conn = sqlite3.connect('portfolio_allocationsTest.db') 
+    db_cur = db_conn.cursor()
+    engine = create_engine('sqlite:///portfolio_allocationsTest.db').connect()
+    create_synthetic_data(db_conn, db_cur)
+    get_share_value(db_conn, db_cur, engine)
+    pass
