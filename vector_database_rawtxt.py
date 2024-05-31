@@ -124,17 +124,65 @@ def create_milvus_connection() -> Collection:
     """
     # Attempt to connect to milvus db
     # Make sure you have docker and zilliz container running
+    # try:
+    #     default_server.start()
+    #     connections.connect("default", host="127.0.0.1", port=default_server.listen_port)
     try:
-        default_server.start()
-        connections.connect("default", host="127.0.0.1", port=default_server.listen_port)
-    except TimeoutError:
-        connections.connect("default", host="localhost", port="19530")
+        connections.connect("default", host="172.22.6.50", port="19530")
     except Exception as e:
         print("Could not connect to Milvus db")
         raise e
 
     # Drop collection if it exists
     utility.drop_collection("AnnualReportDataSearch")
+
+    # Create schema for Milvus Collection
+    fields = [
+        FieldSchema(
+            name="pk",
+            description="Primary Key",
+            dtype=DataType.INT64,
+            is_primary=True,
+            auto_id=False,
+        ),
+        FieldSchema(
+            name="plain_text",
+            description="plain text chunks",
+            dtype=DataType.VARCHAR,
+            max_length=1024,
+        ),
+        FieldSchema(
+            name="embedding",
+            description="10K embedding",
+            dtype=DataType.FLOAT_VECTOR,
+            dim=384,
+        ),
+    ]
+    schema = CollectionSchema(fields, description="10K embeddings")
+    vector_library = Collection("AnnualReportDataSearch", schema)
+    return vector_library
+
+
+def create_milvus_connection_read() -> Collection:
+    """This function assumes you have your docker containers set up and attempts to
+    connect to your local Milvus server.
+
+    Returns:
+        vector_library (Collection): A Milvus Collection with schema as defined
+    """
+    # Attempt to connect to milvus db
+    # Make sure you have docker and zilliz container running
+    # try:
+    #     default_server.start()
+    #     connections.connect("default", host="127.0.0.1", port=default_server.listen_port)
+    try:
+        connections.connect("default", host="172.22.6.50", port="19530")
+    except Exception as e:
+        print("Could not connect to Milvus db")
+        raise e
+
+    # Drop collection if it exists
+    #utility.drop_collection("AnnualReportDataSearch")
 
     # Create schema for Milvus Collection
     fields = [
@@ -202,7 +250,7 @@ def create_milvus_db() -> None:
     with vector embeddings relating to 10K reports in the /data/txt_files folder.
     """
     # Initialise
-    model_state_path =  os.getcwd() + '/data/annual_filings_model_state.pkl'
+    model_state_path =  os.getcwd() + '/GenAIGroupProject/data/annual_filings_model_state.pkl'
     vector_library = create_milvus_connection()
     model = SentenceTransformer('all-MiniLM-L6-v2')
 
