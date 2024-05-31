@@ -17,6 +17,9 @@ import pandas as pd
 import random
 import sqlite3
 import yfinance as yf
+from sqlalchemy import create_engine
+from generate_synthetic_data import create_synthetic_data, get_share_value
+from ml_flow import evaluate_agent, get_info_on_runs, delete_all_runs
 
 from data_access import download_files_10k
 from langchain.agents import AgentExecutor
