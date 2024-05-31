@@ -250,7 +250,7 @@ def create_milvus_db() -> None:
     with vector embeddings relating to 10K reports in the /data/txt_files folder.
     """
     # Initialise
-    model_state_path =  os.getcwd() + '/GenAIGroupProject/data/annual_filings_model_state.pkl'
+    model_state_path =  os.getcwd() + '/data/small_annual_filings_model_state.pkl'
     vector_library = create_milvus_connection()
     model = SentenceTransformer('all-MiniLM-L6-v2')
 
