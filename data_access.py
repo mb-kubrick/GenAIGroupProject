@@ -3,18 +3,20 @@ import pandas as pd
 import requests
 from datetime import datetime, timedelta
 
-def download_files_10k(ticker: str, dest_folder: str):
+def download_files_10k(ticker: str, dest_folder: str)->None:
     """Function to download the last 3 years of 10-K filings for S&P100
         companies to the designated folder.
+
+    Args:
+        ticker (str): company ticker for S&P100 company (e.g. 'AAPL')
+        dest_folder (str): desired destination folder of the file (e.g. "./AAPL_html_files")
     
-    Arguments:
-    ---------------------------------------------------
-    - ticker: type = string, company ticker for S&P100 company (e.g. 'AAPL')
-    - dest_folder: type = string, desired destination folder of the file (e.g. ".\APPL_check_html_files")
+    Returns:
+        None
     """
-    
+   
     # Load company data - ticker and CIK number (with and without zeros)
-    SP100data = pd.read_csv("companyData.csv", index_col=False)
+    SP100data = pd.read_csv("data/companyData.csv", index_col=False)
     SP100data = SP100data.set_index("ticker")
     SP100data["CIK Zeros"] = SP100data["CIK Zeros"].astype(str).str.zfill(10)
     

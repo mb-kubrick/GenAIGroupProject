@@ -20,6 +20,7 @@ import yfinance as yf
 
 from data_access import download_files_10k
 from generate_synthetic_data import create_synthetic_data, get_share_value
+from data_processing import write_clean_html_text_files
 from ml_flow import mlflow_server, evaluate_llm
 from sqlalchemy import create_engine
 from vector_database import start_docker_compose, start_attu_container, create_milvus_db
@@ -28,8 +29,9 @@ logging.basicConfig(level=logging.INFO)
 
 # DEFINING FUNCTIONS ---------------------------------------------------------------------------------------------------
 
-def run_10ks(ticker, dest_folder):
+def run_10ks(ticker, dest_folder, name_folder_txt):
     download_files_10k(ticker, dest_folder)
+    write_clean_html_text_files(dest_folder, name_folder_txt)
 
 def run_vector_database():
     start_docker_compose()
@@ -59,7 +61,7 @@ def run_mlflow(agent_model):
 # RUNNING --------------------------------------------------------------------------------------------------------------
 
 if __name__ == '__main__':
-    run_10ks('AAPL', '.\AAPL_html_files_recent')
+    run_10ks('AAPL', '.\AAPL_html_files', 'AAPL_cleaned_txt_files')
     collection = run_vector_database()
     run_generate_synthetic_data()
     run_agent_model(collection)

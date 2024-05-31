@@ -3,8 +3,15 @@ from bs4 import BeautifulSoup
 import regex as re
 
 
-def clean_html_text(html_text):
-    
+def clean_html_text(html_text: str) -> str:
+    """Function to clean the .html text.
+
+    Args:
+        html_text (str): file to be cleaned 
+
+    Returns:
+        None
+    """
     soup = BeautifulSoup(html_text, 'html.parser')
     
     # Remove elements with specific styles for subscript and superscript
@@ -34,11 +41,20 @@ def clean_html_text(html_text):
     
     return text
 
-def write_clean_html_text_files(input_folder, dest_folder_txt):
+def write_clean_html_text_files(input_folder: str, name_folder_txt: str) -> None:
+    """Function that retrieves the .html files from the input folder and cleans them using the clean_html_text function.
+
+    Args:
+        input_folder (str): destination of your input folder that contains the html files
+        name_folder_txt (str): the name you would like to call your folder that will contain the cleaned txt files
+    
+    Returns:
+        None
+    """
 
     # Create destination folder if it does not already exist
-    if not os.path.exists(dest_folder_txt):
-        os.mkdir(dest_folder_txt)
+    if not os.path.exists(name_folder_txt):
+        os.mkdir(name_folder_txt)
 
     # Retrieve .html files only from input folder
     html_files = []
@@ -66,12 +82,12 @@ def write_clean_html_text_files(input_folder, dest_folder_txt):
             txt_filename = html_filename.replace(".htm", ".txt")
 
         with open(
-            f"{dest_folder_txt}/{txt_filename}", "w", encoding="utf-8"
+            f"{name_folder_txt}/{txt_filename}", "w", encoding="utf-8"
         ) as output_file:
             output_file.write(cleaned_txt)
         
         
-        with open(f"{dest_folder_txt}/{txt_filename}", 'r') as f:
+        with open(f"{name_folder_txt}/{txt_filename}", 'r') as f:
             content = f.read()
             # Find all positions of "PART I Item 1 Business"
             matches = [match.start() for match in re.finditer(r'\bPART I Item 1 Business\b', content, re.IGNORECASE)]
@@ -88,5 +104,5 @@ def write_clean_html_text_files(input_folder, dest_folder_txt):
                 # If the string is not found, return the original content
                 cleaned_text = content.strip()
             
-            with open(f"{dest_folder_txt}/{txt_filename}", 'w', encoding="utf-8") as output_file:
+            with open(f"{name_folder_txt}/{txt_filename}", 'w', encoding="utf-8") as output_file:
                 output_file.write(cleaned_text)
