@@ -19,6 +19,7 @@ from langchain.agents import AgentExecutor
 from data_processing import write_clean_html_text_files
 from ml_flow import mlflow_server, evaluate_agent, get_info_on_runs, delete_all_runs
 from vector_database import start_docker_compose, start_attu_container, create_milvus_db
+from agent_presentation import call_agent
 
 logging.basicConfig(level=logging.INFO)
 
@@ -31,7 +32,7 @@ def run_10ks(ticker, dest_folder, name_folder_txt):
 def run_vector_database():
     start_docker_compose()
     start_attu_container()
-    create_milvus_db()
+    collection = create_milvus_db()
 
     return collection
 
@@ -57,7 +58,7 @@ def run_mlflow(agent: AgentExecutor, experiment_name: str = 'mlflow_development'
     _ = mlflow_server()
 
     eval_set = pd.read_csv(os.getcwd() +'/data/' + 'Evaluation Dataset - Agent.csv')
-    evaluate_agent(agent, eval_set['questions'], experiment_name)
+    evaluate_agent(agent, eval_set['question'], experiment_name)
     get_info_on_runs(experiment_name)
 
     if delete:
@@ -66,7 +67,7 @@ def run_mlflow(agent: AgentExecutor, experiment_name: str = 'mlflow_development'
 # RUNNING --------------------------------------------------------------------------------------------------------------
 
 if __name__ == '__main__':
-    run_10ks('AAPL', '.\AAPL_html_files', 'AAPL_cleaned_txt_files')
+    run_10ks('AAPL', './demo_data/AAPL_html_files', './demo_data/AAPL_cleaned_txt_files')
     collection = run_vector_database()
     run_generate_synthetic_data()
     agent = run_agent_model(collection)
