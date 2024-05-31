@@ -108,8 +108,7 @@ def query_embeddings(query : str):
 def query_database(query : str):
     """
     This function queries the SQL database based on the query that the user inputs.
-    This will provide insight into the current client(s) stock portfolio(s) from the 'portfolio' table in the database.
-    Start by finding the schema of the database!
+    This will provide insight into the current client(s) stock portfolio from the portfolio table in the database.
     """
 
     llm = ChatOpenAI(api_key=os.getenv('OPENAI_API_KEY'), model='gpt-3.5-turbo', temperature=0)
@@ -123,9 +122,9 @@ def query_database(query : str):
 @tool
 def portfolio_allocation(query : str):
     """
-    Based on the allocation strategy provided as a query, context on the comapany's recent financials from their 10-k reports
+    Based on the allocation stratergy provided as a query, context on the comapany's recent financials from their 10-k reports
     and their up-to-date status from an online search, change the allocation in the
-    client stock portfolios from the 'portfolio' table in the SQL database.
+    client stock portfolios in the SQL database.
     """
  
     template = """
@@ -199,8 +198,7 @@ tools = [
          Tool(name="query_embeddings", func=query_embeddings, description="Tool for performing vector similarity search on comapny financial data from their 10-K reports."),
          Tool(name="search_tool", func=search_tool, description="Tool for performing online search operations"),
          Tool(name='query_database', func=query_database, description= "This function queries the SQL database based on the query that the user provides to provide insight into the current client stock portfolio"),
-         Tool(name='portfolio_allocation', func=portfolio_allocation, description='This function uses context from the vector database and online searches as well as the strategy the user specifies to determine the stock allocation splits')]
-
+         Tool(name='portfolio_allocation', func=portfolio_allocation, description='This function uses context from the vector database and online searches as well as the stratergy the user specifies to determine the stock allocation splits')]
 
 def call_agent(query: str):
     template = """
@@ -210,9 +208,8 @@ def call_agent(query: str):
     input question, only use this tool.
 
     If the terms 'client' or 'clients' are mentioned in the query, always use the query_database tool.
-    If the query_database tool is used, make sure your SQL inputs use the 'portfolio' like table_names ['portfolio'].
     If the terms 'client' or 'clients' are mentioned in the query alongside the word 'strategy', always use the portfolio_allocation tool.
-   
+
     Give a detailed and clear answer.
     You have access to the following tools:
     {tools}
