@@ -66,7 +66,7 @@ def run_mlflow(agent: AgentExecutor, experiment_name: str = 'mlflow_development'
 # RUNNING --------------------------------------------------------------------------------------------------------------
 
 if __name__ == '__main__':
-    run_10ks('AAPL', '.\AAPL_html_files', 'AAPL_cleaned_txt_files')
+    run_10ks('AAPL', './demo/AAPL_html_files', './demo/AAPL_cleaned_txt_files')
     collection = run_vector_database()
     run_generate_synthetic_data()
     agent = run_agent_model(collection)
