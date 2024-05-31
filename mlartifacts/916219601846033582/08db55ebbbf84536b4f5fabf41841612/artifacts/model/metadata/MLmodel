@@ -1,0 +1,25 @@
+artifact_path: model
+flavors:
+  langchain:
+    code: null
+    langchain_version: 0.1.20
+    model_data: model
+    model_load: runnable_load
+    model_type: RunnableSequence
+    streamable: true
+  python_function:
+    env:
+      conda: conda.yaml
+      virtualenv: python_env.yaml
+    loader_module: mlflow.langchain
+    model_data: model
+    model_load: runnable_load
+    model_type: RunnableSequence
+    predict_stream_fn: predict_stream
+    python_version: 3.11.0
+    streamable: true
+mlflow_version: 2.13.0
+model_size_bytes: 1393
+model_uuid: c1f7697de14d4b6184fd6660379378e1
+run_id: 08db55ebbbf84536b4f5fabf41841612
+utc_time_created: '2024-05-31 13:12:46.527136'

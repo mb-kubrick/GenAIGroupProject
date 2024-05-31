@@ -1,0 +1,22 @@
+_type: prompt
+input_types: {}
+input_variables:
+- context
+- inputs
+metadata: null
+name: null
+output_parser: null
+partial_variables: {}
+tags: null
+template: 'You''re a investment manager. Using the context provided, reply to the
+  question below to the best of your ability:
+
+  Question:
+
+  {inputs}
+
+  Context:
+
+  {context}'
+template_format: f-string
+validate_template: false
