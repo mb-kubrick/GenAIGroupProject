@@ -46,8 +46,8 @@ def mlflow_server(port: int = 8080) -> subprocess.Popen:
 
     try:
         server_process = subprocess.Popen(command)
-        logging.info('Successfully running ML-Flow server. The server will terminate at the end of runtime.')
         atexit.register(_close_mlflow_server, server_process)
+        logging.info('Successfully running ML-Flow server. The server will terminate at the end of runtime.')
 
     except subprocess.CalledProcessError as e:
         logging.warning('Unable to run ML-Flow server.')
