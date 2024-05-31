@@ -31,7 +31,7 @@ def run_10ks(ticker, dest_folder, name_folder_txt):
 def run_vector_database():
     start_docker_compose()
     start_attu_container()
-    create_milvus_db()
+    collection = create_milvus_db()
 
     return collection
 
@@ -66,7 +66,7 @@ def run_mlflow(agent: AgentExecutor, experiment_name: str = 'mlflow_development'
 # RUNNING --------------------------------------------------------------------------------------------------------------
 
 if __name__ == '__main__':
-    run_10ks('AAPL', '.\AAPL_html_files', 'AAPL_cleaned_txt_files')
+    run_10ks('AAPL', './demo_data/AAPL_html_files', './demo_data/AAPL_cleaned_txt_files')
     collection = run_vector_database()
     run_generate_synthetic_data()
     agent = run_agent_model(collection)

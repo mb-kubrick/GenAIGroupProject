@@ -43,8 +43,8 @@ def start_docker_compose() -> None:
         # print(e.stderr.decode())
         # raise
         pass
-    else:
-        raise
+    except Exception as e:
+        raise e
 
 
 def start_attu_container() -> Container:
