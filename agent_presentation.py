@@ -256,7 +256,7 @@ def call_agent(query: str):
 
 #Question set:
 #Embeddings
-#query = "What are the strategic objectives of Apple over the next year?"
+query = "What are the strategic objectives of Apple over the next year?"
 #query = "Give me the net sale value for iphones in Apple in 2022 in America"
 #query =  "How much profit did Apple make in comparison to Microsoft in 2021?"
 
@@ -271,6 +271,6 @@ def call_agent(query: str):
 #portfolio allocation queries 
 #query = 'Reallocate the stocks for client 6 using a balanced strategy'
 #query = 'Reallocate the stocks for client 5 using a risk-based strategy'
-query = 'Reallocate the stocks for client 2 using a returns-based strategy'
+#query = 'Reallocate the stocks for client 2 using a returns-based strategy'
 resp, agent = call_agent(query=query)
 print(resp['output'])
