@@ -128,7 +128,7 @@ def create_milvus_connection() -> Collection:
     #     default_server.start()
     #     connections.connect("default", host="127.0.0.1", port=default_server.listen_port)
     try:
-        connections.connect("default", host="192.168.0.78", port="19530")
+        connections.connect("default", host="172.22.6.50", port="19530")
     except Exception as e:
         print("Could not connect to Milvus db")
         raise e
@@ -250,7 +250,7 @@ def create_milvus_db() -> None:
     with vector embeddings relating to 10K reports in the /data/txt_files folder.
     """
     # Initialise
-    model_state_path =  os.getcwd() + '/GenAIGroupProject/data/annual_filings_model_state.pkl'
+    model_state_path =  os.getcwd() + '/data/small_annual_filings_model_state.pkl'
     vector_library = create_milvus_connection()
     model = SentenceTransformer('all-MiniLM-L6-v2')
 

@@ -247,30 +247,30 @@ def call_agent(query: str):
     agent = create_react_agent(llm=llm, tools=tools, prompt=prompt)
 
     # Create the agent executor
-    agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True, handle_parsing_errors=True)
+    agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True, handle_parsing_errors=True, return_intermediate_steps=True)
 
     # Execute the agent with the given input
     response = agent_executor.invoke({'input': query, 'tools' : tools, 'tool_names' : [tool.name for tool in tools]})
 
-    return response, agent_executor
+    return response['output'], agent_executor
 
-#Question set:
-#Embeddings
-query = "What are the strategic objectives of Apple over the next year?"
+# #Question set:
+# #Embeddings
+# query = "What are the strategic objectives of Apple over the next year?"
 #query = "Give me the net sale value for iphones in Apple in 2022 in America"
-#query =  "How much profit did Apple make in comparison to Microsoft in 2021?"
+# #query =  "How much profit did Apple make in comparison to Microsoft in 2021?"
 
-#Searches
-#query = "Tell me today's Nvidia stock value"
-#query = 'What is the weather in london right now?'
+# #Searches
+# #query = "Tell me today's Nvidia stock value"
+# #query = 'What is the weather in london right now?'
 
-#SQL search:
-#query = 'give me all the stock allocations for client 1 and client 2'
-#query = 'give me the stock allocations for client 5'
+# #SQL search:
+# #query = 'give me all the stock allocations for client 1 and client 2'
+# #query = 'give me the stock allocations for client 5'
 
-#portfolio allocation queries 
-#query = 'Reallocate the stocks for client 6 using a balanced strategy'
-#query = 'Reallocate the stocks for client 5 using a risk-based strategy'
+# #portfolio allocation queries 
+# #query = 'Reallocate the stocks for client 6 using a balanced strategy'
+# #query = 'Reallocate the stocks for client 5 using a risk-based strategy'
 #query = 'Reallocate the stocks for client 2 using a returns-based strategy'
-resp, agent = call_agent(query=query)
-print(resp['output'])
+# resp, agent = call_agent(query=query)
+# print(resp['output'])
