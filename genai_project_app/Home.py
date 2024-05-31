@@ -6,7 +6,7 @@ st.write("<span style='font-style: italic;'>Fahima Ahmed, Michael Berney, Mak De
 st.header("Project Brief")
 
 st.markdown(
-    f'<div style="border: 2px solid #ADD8E6; padding: 10px; background-color: #ADD8E6; text-align: center;">'
+    f'<div style="border: 2px solid #FDFD96; padding: 10px; background-color: #FDFD96; text-align: center;">'
     f'<p style="color: black; margin: 0;">Stimulate an Investment Management role by leveraging an AI Assistant that is powered by an LLM</p>'
     '</div>',
     unsafe_allow_html=True
@@ -24,32 +24,46 @@ st.markdown(
     """
 )
 
+st.image("query_workflow.png")
+
 st.header("Project Workflow")
 
 st.write("Created and allocated tickets on Jira")
 
 st.subheader("Data Pre-Processing")
 
-data_preprocessing = st.button("🧹")
+#data_preprocessing = st.button("🧹")
 
-if data_preprocessing:  
-    st.markdown(
+#if data_preprocessing:  
+st.markdown(
         """
         🧹 Download the 10-K files for chosen tickers (companies) using the SEC EDGAR API for the last 3 years
+        
         🧹 Clean .html files by removing html tags and special characters
         """
     )
 
 st.subheader("Agent")
 
-agent = st.button("🔧", type="primary")
+#agent = st.button("🔧")
 
-if agent:  
-    st.markdown(
-        """
-        🔧 SQL Database
-            - create synthetic data by allocating each ticker with random percentages
-        🔧 Vector Database
-        🔧 Web Search
-        """
-    )
+#if agent:  
+st.markdown(
+    """
+    🔧 SQL Database
+        - create synthetic data by allocating each ticker with random percentages
+   
+    🔧 Vector Database
+    
+    🔧 Web Search
+    """
+)
+
+st.subheader("MLFlow")
+#mlflow = st.button("🔄")
+
+#if mlflow:
+st.markdown(
+    """
+    🔄
+    """)
