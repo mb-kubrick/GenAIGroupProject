@@ -98,7 +98,7 @@ def get_info_on_runs(experiment_name: str = 'mlflow_development', tracking_uri: 
             if len(info_data) != 0:
                 response.append(f"{info_name}: {info_data}")
 
-    return '\n'.join(response)
+    return '\n'.join(response), extra_info
 
 
 def delete_all_runs(experiment_name: str = 'mlflow_development', tracking_uri: str = 'http://localhost:8080/') -> None:
