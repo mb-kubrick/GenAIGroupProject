@@ -31,9 +31,9 @@ def run_10ks(ticker, dest_folder, name_folder_txt):
 def run_vector_database():
     start_docker_compose()
     start_attu_container()
-    connection = create_milvus_db()
+    collection = create_milvus_db()
 
-    return connection
+    return collection
 
 def run_generate_synthetic_data():
     # get_connections
@@ -43,7 +43,7 @@ def run_generate_synthetic_data():
     # get_table
     pass
 
-def run_agent_model(connection):
+def run_agent_model(collection):
     pass
 
 def run_mlflow(agent: AgentExecutor, experiment_name: str = 'mlflow_development', delete: bool = False) -> None:
