@@ -25,7 +25,7 @@ def download_files_10k(ticker: str, dest_folder: str)->None:
     cik_zero = SP100data.loc[ticker]["CIK Zeros"]
     
     # Create request header
-    headers = {"User-Agent": "your-email@example.com"}
+    headers = {"User-Agent": "fahimaahmed@kubrickgroup.com"}
     
     # Get all file submission metadata
     company_files = requests.get(
